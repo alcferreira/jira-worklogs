@@ -3,8 +3,8 @@ jira-worklogs
 
 Exports jira worklogs to csv by user and initial date.
 
-Call:
+Usage:
 -----------
-`node main.js jiraTeam user password initialDate`
+`node main.js -t <jiraTeam> -u <user> -p <password> -d <initialDate>`
 
-`initialDate` format = `YYYY-DD-MM`
+`initialDate` format = `YYYY-MM-DD`

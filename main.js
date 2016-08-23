@@ -1,15 +1,16 @@
-var request = require('request');
-var co = require('co');
-var csvWriter = require('csv-write-stream');
-var fs = require('fs');
-var writer = csvWriter();
+const request = require('request');
+const co = require('co');
+const csvWriter = require('csv-write-stream');
+const fs = require('fs');
+const writer = csvWriter();
+const commandLineArgs = require('command-line-args');
 
-// node main.js jiraTeam email password initialDate
+const options = commandLineOptions();
 
-const baseUrl = `https://${process.argv[2]}.atlassian.net/rest/api/latest`;
-const email = process.argv[3];
-const auth = `Basic ${new Buffer(`${process.argv[3]}:${process.argv[4]}`).toString('base64')}`;
-const timestamp = new Date(process.argv[5]).getTime();
+const baseUrl = `https://${options.team}.atlassian.net/rest/api/latest`;
+const user = options.user;
+const auth = `Basic ${new Buffer(`${options.user}:${options.password}`).toString('base64')}`;
+const timestamp = new Date(options.initialDate).getTime();
 
 co(function *() {
 	console.log('Retrieving worklogs ids...');
@@ -24,7 +25,7 @@ co(function *() {
 	console.log();
 	console.log('Processing...');
 
-	const byUser = worklogList.filter(x => x.author.emailAddress === email);
+	const byUser = worklogList.filter(x => x.author.emailAddress === user);
 
 	let totalInSeconds = 0;
 
@@ -77,4 +78,33 @@ function getWorkLogList(list) {
 			return resolve(JSON.parse(body));
 		});
 	});
+}
+
+function commandLineOptions() {
+	const cli = commandLineArgs([
+		{ name: 'team', alias: 't', type: String },
+	  { name: 'user', alias: 'u', type: String },
+		{ name: 'password', alias: 'p', type: String },
+		{ name: 'initialDate', alias: 'd', type: String }
+	]);
+
+	const options = cli.parse();
+
+	if (!checkProp('team', options)
+		|| !checkProp('user', options)
+		|| !checkProp('password', options)
+		|| !checkProp('initialDate', options)) {
+
+		console.log(cli.getUsage({
+			title: 'Usage',
+			description: 'Please provide all the options bellow'
+		}));
+		process.exit();
+	}
+
+	return options;
+
+	function checkProp(prop, obj) {
+		return (prop in obj);
+	}
 }
