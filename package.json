@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "async": "^2.0.1",
     "co": "^4.6.0",
     "command-line-args": "~2.1.4",
     "csv-write-stream": "^2.0.0",
